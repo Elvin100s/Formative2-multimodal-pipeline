@@ -105,17 +105,6 @@ def main():
     plt.suptitle(""); fig.tight_layout()
     fig.savefig(PLOTS / "eda_outliers_boxplot.png", dpi=120); plt.close(fig)
 
-    num = merged.select_dtypes("number")
-    fig, ax = plt.subplots(figsize=(6, 5))
-    im = ax.imshow(num.corr(), cmap="coolwarm", vmin=-1, vmax=1)
-    ax.set_xticks(range(len(num.columns)), num.columns, rotation=45, ha="right")
-    ax.set_yticks(range(len(num.columns)), num.columns)
-    for i in range(len(num.columns)):
-        for j in range(len(num.columns)):
-            ax.text(j, i, f"{num.corr().iloc[i, j]:.2f}", ha="center", va="center", fontsize=8)
-    fig.colorbar(im); ax.set_title("Correlation Matrix (numeric features)")
-    fig.tight_layout(); fig.savefig(PLOTS / "eda_correlation_heatmap.png", dpi=120); plt.close(fig)
-
     # ---- feature engineering ----
     merged["purchase_month"] = merged["purchase_date"].dt.month
     merged["purchase_dow"] = merged["purchase_date"].dt.dayofweek
@@ -127,6 +116,22 @@ def main():
     ).reset_index()
     merged = merged.merge(agg, on="customer_id_new")
     merged["engagement_x_interest"] = merged["engagement_score"] * merged["purchase_interest_score"]
+
+    # correlation heatmap: meaningful numerics only (IDs excluded), engineered features included
+    corr_cols = ["purchase_amount", "customer_rating", "engagement_score",
+                 "purchase_interest_score", "total_spend", "avg_spend",
+                 "n_transactions", "avg_rating", "engagement_x_interest"]
+    corr = merged[corr_cols].corr()
+    fig, ax = plt.subplots(figsize=(7, 6))
+    im = ax.imshow(corr, cmap="coolwarm", vmin=-1, vmax=1)
+    ax.set_xticks(range(len(corr_cols)), corr_cols, rotation=45, ha="right")
+    ax.set_yticks(range(len(corr_cols)), corr_cols)
+    for i in range(len(corr_cols)):
+        for j in range(len(corr_cols)):
+            ax.text(j, i, f"{corr.iloc[i, j]:.2f}", ha="center", va="center", fontsize=7)
+    fig.colorbar(im); ax.set_title("Correlation Matrix — raw + engineered features")
+    fig.tight_layout(); fig.savefig(PLOTS / "eda_correlation_heatmap.png", dpi=120); plt.close(fig)
+
     merged = pd.get_dummies(merged, columns=["social_media_platform", "review_sentiment"], dtype=int)
 
     merged.to_csv(PROC / "merged_dataset.csv", index=False)

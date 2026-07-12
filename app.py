@@ -11,7 +11,7 @@ Usage:
     # full authorized transaction
     python app.py --image data/images/raw/member1_neutral.jpg \
                   --audio data/audio/raw/member1_yes_approve.wav \
-                  --customer A5003
+                  --customer A176
 
     # unauthorized attempt (impostor face)
     python app.py --image data/images/raw/impostor1_neutral.jpg \

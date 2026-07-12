@@ -39,7 +39,7 @@ C.append(md("### EDA plots (distribution, outliers, correlations)"))
 C.append(code("""for p in ["eda_purchase_distribution.png", "eda_outliers_boxplot.png", "eda_correlation_heatmap.png"]:
     display(IPImage("outputs/plots/" + p))"""))
 
-C.append(md("""**Interpretation.** Purchase amounts are right-skewed (typical spend under \\$150 with a long high-value tail — the boxplot shows those outliers per category). The correlation heatmap shows engineered aggregates (`total_spend`, `n_transactions`) correlate with each other as expected, while `engagement_score` and `purchase_interest_score` carry the social-side signal used by the product model."""))
+C.append(md("""**Interpretation.** Purchase amounts are spread almost uniformly between ~\\$80 and \\$500 — there is no typical spend level, and the per-category boxplots show similar medians and ranges with no extreme outliers. The correlation heatmap (IDs excluded; engineered features included) confirms this flatness: apart from mechanical relationships among the engineered aggregates (`total_spend` ≈ `avg_spend` × `n_transactions`), every off-diagonal correlation is near zero. In particular the social-side predictors (`engagement_score`, `purchase_interest_score`) are uncorrelated with purchase behaviour — an early warning, consistent with the baseline check in Task 4, that this dataset carries little signal for product prediction."""))
 
 C.append(md("""## Task 2 — Image Collection, Augmentation & Features
 3 expressions per identity (neutral / smiling / surprised); 3 augmentations per image (rotation+brightness, horizontal flip, grayscale); features = 32-bin grayscale histogram + 16×16 pixel embedding → `image_features.csv`."""))
@@ -110,10 +110,11 @@ C.append(md("""**Multimodal logic.** The product model is only ever invoked afte
 C.append(md("""## Task 6 — System Simulation (CLI)
 Full authorized transaction, then an unauthorized attempt (impostor face + authorized voice)."""))
 
-C.append(code("""out = subprocess.run([sys.executable, "app.py",
+C.append(code("""cust = pd.read_csv("data/processed/merged_dataset.csv")["customer_id_new"].iloc[0]
+out = subprocess.run([sys.executable, "app.py",
     "--image", "data/images/raw/member1_smiling.jpg",
     "--audio", "data/audio/raw/member1_yes_approve.wav",
-    "--customer", "A5003"], capture_output=True, text=True)
+    "--customer", str(cust)], capture_output=True, text=True)
 print(out.stdout)"""))
 
 C.append(code("""out = subprocess.run([sys.executable, "app.py",

@@ -42,9 +42,9 @@ python scripts/image_pipeline.py
 python scripts/audio_pipeline.py
 python scripts/train_models.py
 
-# Authorized full transaction
+# Authorized full transaction (any customer_id_new from data/processed/merged_dataset.csv)
 python app.py --image data/images/raw/member1_smiling.jpg \
-              --audio data/audio/raw/member1_yes_approve.wav --customer A5003
+              --audio data/audio/raw/member1_yes_approve.wav --customer A176
 
 # Unauthorized attempt (denied at face step)
 python app.py --image data/images/raw/impostor2_neutral.jpg \
