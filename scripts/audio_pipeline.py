@@ -89,7 +89,7 @@ def extract_features(path: Path) -> dict:
     mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=13)
     member, phrase = path.stem.split("_")[0], "_".join(path.stem.split("_")[1:3])
     row = {"file": path.name, "member": member, "phrase": phrase,
-           "label_authorized": int(member == "member1"),
+           "label_authorized": int(member.startswith("member")),
            "spectral_rolloff": float(librosa.feature.spectral_rolloff(y=y, sr=sr).mean()),
            "spectral_centroid": float(librosa.feature.spectral_centroid(y=y, sr=sr).mean()),
            "rms_energy": float(librosa.feature.rms(y=y).mean()),

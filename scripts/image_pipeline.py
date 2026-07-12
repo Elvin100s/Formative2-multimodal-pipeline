@@ -103,7 +103,7 @@ def extract_features(path: Path) -> dict:
     emb = cv2.resize(gray, (16, 16)).flatten() / 255.0
     member, expression = path.stem.split("_")[0], path.stem.split("_")[1]
     row = {"file": path.name, "member": member, "expression": expression,
-           "label_authorized": int(member == "member1")}
+           "label_authorized": int(member.startswith("member"))}
     row |= {f"hist_{i}": v for i, v in enumerate(hist)}
     row |= {f"emb_{i}": v for i, v in enumerate(emb)}
     return row
@@ -112,13 +112,18 @@ def extract_features(path: Path) -> dict:
 def main():
     raw = collect_images()
 
-    # display grid of each member's expressions
-    fig, axes = plt.subplots(len(MEMBERS), len(EXPRESSIONS), figsize=(7, 7))
-    for i, member in enumerate(MEMBERS):
+    # display grid of each identity's expressions (members first, then impostors)
+    identities = sorted({p.stem.split("_")[0] for p in raw},
+                        key=lambda m: (not m.startswith("member"), m))
+    fig, axes = plt.subplots(len(identities), len(EXPRESSIONS),
+                             figsize=(7, 2.4 * len(identities)), squeeze=False)
+    for i, member in enumerate(identities):
         for j, expr in enumerate(EXPRESSIONS):
-            p = RAW_IMG / f"{member}_{expr}.jpg"
-            if p.exists():
-                axes[i, j].imshow(Image.open(p))
+            for ext in ("jpg", "png"):
+                p = RAW_IMG / f"{member}_{expr}.{ext}"
+                if p.exists():
+                    axes[i, j].imshow(Image.open(p))
+                    break
             axes[i, j].set_title(f"{member} — {expr}", fontsize=9)
             axes[i, j].axis("off")
     fig.suptitle("Collected face images (3 expressions per identity)")
