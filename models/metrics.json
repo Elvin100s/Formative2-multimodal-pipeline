@@ -2,7 +2,7 @@
   "face_recognition": {
     "accuracy": 1.0,
     "f1_weighted": 1.0,
-    "log_loss": 0.0551
+    "log_loss": 0.026
   },
   "voice_verification": {
     "accuracy": 0.875,
